@@ -10,6 +10,7 @@ import '../../../data/models/validation_report.dart';
 import '../../../data/services/report_exporter.dart';
 import '../../../data/services/pdf_exporter.dart';
 import '../../../data/repositories/idea_repository.dart';
+import '../../../data/constants/app_constants.dart';
 
 class ReportDetailScreen extends StatefulWidget {
   final ValidationReport report;
@@ -30,6 +31,17 @@ class ReportDetailScreen extends StatefulWidget {
 class _ReportDetailScreenState extends State<ReportDetailScreen> {
   late ValidationReport _currentReport;
   bool _isGeneratingPrompt = false;
+  int _currentStep = 0;
+
+  static const List<Map<String, dynamic>> _steps = [
+    {'title': 'Overview', 'icon': Icons.insights_rounded},
+    {'title': 'SWOT Analysis', 'icon': Icons.grid_view_rounded},
+    {'title': 'Competitors', 'icon': Icons.people_outline_rounded},
+    {'title': 'Customer Feedback', 'icon': Icons.chat_bubble_outline_rounded},
+    {'title': 'Launch Strategy', 'icon': Icons.trending_up_rounded},
+    {'title': 'Reference Links', 'icon': Icons.link_rounded},
+    {'title': 'MVP Prompt', 'icon': Icons.bolt_rounded, 'isPremium': true},
+  ];
 
   @override
   void initState() {
@@ -350,6 +362,255 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
     );
   }
 
+  Widget _buildStepIndicator() {
+    final currentStepInfo = _steps[_currentStep];
+    final title = currentStepInfo['title'] as String;
+    final icon = currentStepInfo['icon'] as IconData;
+    final isPremium = currentStepInfo['isPremium'] == true;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: AppTheme.glassBox(),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    icon,
+                    color: isPremium ? AppTheme.secondaryColor : AppTheme.primaryColor,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'STEP ${_currentStep + 1} OF ${_steps.length}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[500],
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryTextColor,
+                            ),
+                          ),
+                          if (isPremium) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                gradient: AppTheme.premiumGradient,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                'PRO',
+                                style: TextStyle(
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Text(
+                '${((_currentStep + 1) / _steps.length * 100).toInt()}% Done',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: constraints.maxWidth * ((_currentStep + 1) / _steps.length),
+                    height: 4,
+                    decoration: BoxDecoration(
+                      gradient: isPremium ? AppTheme.premiumGradient : AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepDots() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(_steps.length, (index) {
+          final isActive = index == _currentStep;
+          final isCompleted = index < _currentStep;
+          final isPremium = _steps[index]['isPremium'] == true;
+
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _currentStep = index;
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: isActive ? 24 : 10,
+              height: 10,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                gradient: isActive
+                    ? (isPremium ? AppTheme.premiumGradient : AppTheme.primaryGradient)
+                    : null,
+                color: isActive
+                    ? null
+                    : (isCompleted
+                        ? (isPremium ? AppTheme.secondaryColor.withOpacity(0.4) : AppTheme.primaryColor.withOpacity(0.4))
+                        : Colors.grey[300]),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildStepBody(BuildContext context, Color verdictColor) {
+    switch (_currentStep) {
+      case 0:
+        return _buildOverviewTab(context, verdictColor);
+      case 1:
+        return _buildSwotTab(context);
+      case 2:
+        return _buildCompetitorsTab(context);
+      case 3:
+        return _buildFeedbackTab(context);
+      case 4:
+        return _buildStrategyTab(context, verdictColor);
+      case 5:
+        return _buildReferencesTab(context);
+      case 6:
+        return _buildMvpPromptTab(context);
+      default:
+        return _buildOverviewTab(context, verdictColor);
+    }
+  }
+
+  Widget _buildNavigationButtons() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      child: Row(
+        children: [
+          if (_currentStep > 0)
+            Expanded(
+              child: SizedBox(
+                height: 50,
+                child: OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      _currentStep--;
+                    });
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.black.withOpacity(0.08)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    'Back',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.secondaryTextColor,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (_currentStep > 0) const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: SizedBox(
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_currentStep < _steps.length - 1) {
+                    setState(() {
+                      _currentStep++;
+                    });
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 0,
+                ),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      _currentStep == _steps.length - 1 ? 'Finish' : 'Next Step',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<bool> _onBackPress(BuildContext context) async {
     if (!widget.isNewReport) return true;
 
@@ -359,14 +620,14 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
         backgroundColor: AppTheme.cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
-          'Exit Review?',
+          AppConstants.exitReviewTitle,
           style: TextStyle(
             color: AppTheme.primaryTextColor,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: const Text(
-          'Are you sure you want to exit without saving? This validation report will be permanently lost.',
+          AppConstants.exitReviewContent,
           style: TextStyle(color: AppTheme.secondaryTextColor),
         ),
         actions: [
@@ -395,7 +656,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
             const SizedBox(width: 8),
-            Text('"${report.businessName}" saved to history list!'),
+            Text('"${report.businessName}" ${AppConstants.saveReportSuccess}'),
           ],
         ),
         backgroundColor: AppTheme.strengthColor,
@@ -414,138 +675,67 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
         ? AppTheme.weaknessColor
         : AppTheme.threatColor;
 
-    return DefaultTabController(
-      length: 7,
-      child: PopScope(
-        canPop: !widget.isNewReport,
-        onPopInvokedWithResult: (didPop, result) async {
-          if (didPop) return;
-          final shouldPop = await _onBackPress(context);
-          if (shouldPop && context.mounted) {
-            Navigator.pop(context);
-          }
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(report.businessName),
-            leading: IconButton(
-              onPressed: () async {
-                if (await _onBackPress(context)) {
-                  if (context.mounted) Navigator.pop(context);
-                }
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: AppTheme.primaryTextColor,
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.share, color: AppTheme.primaryTextColor),
-                onPressed: () => _showShareOptions(context),
-              ),
-            ],
-            bottom: TabBar(
-              isScrollable: true,
-              indicatorColor: AppTheme.primaryColor,
-              labelColor: AppTheme.primaryColor,
-              unselectedLabelColor: Colors.grey,
-              tabs: [
-                const Tab(text: 'Overview'),
-                const Tab(text: 'Feedback'),
-                Tab(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('MVP Prompt'),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFFD700), Color(0xFFF59E0B)],
-                          ),
-                          borderRadius: BorderRadius.circular(6),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFF59E0B).withOpacity(0.3),
-                              blurRadius: 4,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: const Text(
-                          'PRO',
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Tab(text: 'Competitors'),
-                const Tab(text: 'SWOT'),
-                const Tab(text: 'Strategy'),
-                const Tab(text: 'References'),
-              ],
+    return PopScope(
+      canPop: !widget.isNewReport,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _onBackPress(context);
+        if (shouldPop && context.mounted) {
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(report.businessName),
+          leading: IconButton(
+            onPressed: () async {
+              if (await _onBackPress(context)) {
+                if (context.mounted) Navigator.pop(context);
+              }
+            },
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: AppTheme.primaryTextColor,
             ),
           ),
-          floatingActionButton: widget.isNewReport
-              ? FloatingActionButton.extended(
-                  onPressed: () => _saveAndGoHome(context),
-                  icon: const Icon(Icons.save_rounded, color: Colors.white),
-                  label: const Text(
-                    'Save Validation Report',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+          actions: [
+            if (widget.isNewReport)
+              IconButton(
+                icon: const Icon(Icons.save_rounded, color: AppTheme.primaryColor),
+                onPressed: () => _saveAndGoHome(context),
+              ),
+            IconButton(
+              icon: const Icon(Icons.share, color: AppTheme.primaryTextColor),
+              onPressed: () => _showShareOptions(context),
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                gradient: AppTheme.backgroundGradient,
+              ),
+            ),
+            SafeArea(
+              child: Column(
+                children: [
+                  _buildStepIndicator(),
+                  _buildStepDots(),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: KeyedSubtree(
+                        key: ValueKey<int>(_currentStep),
+                        child: _buildStepBody(context, verdictColor),
+                      ),
                     ),
                   ),
-                  backgroundColor: AppTheme.primaryColor,
-                )
-              : null,
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
-          body: Stack(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: AppTheme.backgroundGradient,
-                ),
-              ),
-              TabBarView(
-                children: [
-                  // --- Tab 1: Overview ---
-                  _buildOverviewTab(context, verdictColor),
-
-                  // --- Tab 2: Feedback ---
-                  _buildFeedbackTab(context),
-
-                  // --- Tab 3: MVP Prompt ---
-                  _buildMvpPromptTab(context),
-
-                  // --- Tab 4: Competitors ---
-                  _buildCompetitorsTab(context),
-
-                  // --- Tab 5: SWOT ---
-                  _buildSwotTab(context),
-
-                  // --- Tab 6: Strategy & Roadmap ---
-                  _buildStrategyTab(context, verdictColor),
-
-                  // --- Tab 7: References & Sources ---
-                  _buildReferencesTab(context),
+                  _buildNavigationButtons(),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -1624,7 +1814,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.white),
               SizedBox(width: 8),
-              Text('Please enter your Gemini API Key in Settings first.'),
+              Text(AppConstants.emptyApiKeyWarning),
             ],
           ),
           backgroundColor: AppTheme.threatColor,
@@ -1700,7 +1890,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
   Widget _buildPremiumFeatureRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFFFFD700), size: 16),
+        Icon(icon, color: AppTheme.secondaryColor, size: 16),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
@@ -1764,7 +1954,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                           children: [
                             Icon(Icons.check_circle, color: Colors.white),
                             SizedBox(width: 8),
-                            Text('Prompt copied to clipboard!'),
+                            Text(AppConstants.copyPromptSuccess),
                           ],
                         ),
                         backgroundColor: AppTheme.accentColor,
@@ -1833,12 +2023,12 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                     ],
                   ),
                   border: Border.all(
-                    color: const Color(0xFFFFD700).withOpacity(0.3),
+                    color: AppTheme.secondaryColor.withOpacity(0.3),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFFD700).withOpacity(0.05),
+                      color: AppTheme.secondaryColor.withOpacity(0.05),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
@@ -1850,13 +2040,13 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFD700).withOpacity(0.1),
+                        color: AppTheme.secondaryColor.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.workspace_premium_rounded,
                         size: 48,
-                        color: Color(0xFFFFD700),
+                        color: AppTheme.secondaryColor,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -1865,7 +2055,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFFFFD700),
+                        color: Colors.white,
                         letterSpacing: 1.5,
                       ),
                     ),
@@ -1893,13 +2083,11 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFFD700), Color(0xFFF59E0B)],
-                        ),
+                        gradient: AppTheme.premiumGradient,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFF59E0B).withOpacity(0.3),
+                            color: AppTheme.secondaryColor.withOpacity(0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -1907,11 +2095,11 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                       ),
                       child: ElevatedButton.icon(
                         onPressed: _generateMvpPrompt,
-                        icon: const Icon(Icons.bolt_rounded, color: Colors.black87, size: 20),
+                        icon: const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
                         label: const Text(
                           'Generate Premium MVP Coding Prompt',
                           style: TextStyle(
-                            color: Colors.black87,
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 14.5,
                           ),
@@ -1937,12 +2125,12 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
               decoration: AppTheme.glassBox().copyWith(
                 color: AppTheme.darkSurfaceColor,
                 border: Border.all(
-                  color: const Color(0xFFFFD700).withOpacity(0.3), // Glow premium border when generated
+                  color: AppTheme.secondaryColor.withOpacity(0.3), // Glow premium border when generated
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFFD700).withOpacity(0.05),
+                    color: AppTheme.secondaryColor.withOpacity(0.05),
                     blurRadius: 10,
                   ),
                 ],
@@ -1963,16 +2151,16 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFD700).withOpacity(0.15),
+                          color: AppTheme.secondaryColor.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.3), width: 0.5),
+                          border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.3), width: 0.5),
                         ),
                         child: const Text(
                           'PREMIUM',
                           style: TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFFFD700),
+                            color: AppTheme.secondaryColor,
                             letterSpacing: 0.5,
                           ),
                         ),

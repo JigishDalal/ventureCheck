@@ -2,46 +2,52 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Color Palette
-  static const Color bgColor = Color(0xFFF3F4F6); // App Background (Light Grey)
-  static const Color cardColor = Color(0xFFFFFFFF); // Card / Form Surface (Pure White)
-  static const Color primaryColor = Color(0xFF00B4DB); // Gradient Start (Cyan)
-  static const Color secondaryColor = Color(0xFF08C299); // Gradient End (Green)
-  static const Color accentColor = Color(0xFF10B981); // Success Checkmarks (Solid Green)
-  static const Color darkSurfaceColor = Color(0xFF1F2937); // Sidebar / Dark Surface (Dark Charcoal)
+  static const Color bgColor = Color(0xFFF8FAFC); // Apple Silver-Grey Background
+  static const Color cardColor = Color(0xFFFFFFFF); // Pure White Surface
+  static const Color primaryColor = Color(0xFF6366F1); // Indigo Accent
+  static const Color secondaryColor = Color(0xFF8B5CF6); // Purple Accent
+  static const Color accentColor = Color(0xFF10B981); // Success Green
+  static const Color darkSurfaceColor = Color(0xFF0F172A); // Dark Steel Editor
 
   // Typography / Text Colors
-  static const Color primaryTextColor = Color(0xFF111827); // Primary Text / Headings (Dark Charcoal)
-  static const Color secondaryTextColor = Color(0xFF6B7280); // Secondary Text / Subtitles (Slate)
+  static const Color primaryTextColor = Color(0xFF0F172A); // Slate 900
+  static const Color secondaryTextColor = Color(0xFF475569); // Slate 600
 
-  // UI Element Colors for Light Theme (allows const usage)
-  static const Color dividerColor = Color(0x14000000); // 8% opacity black
-  static const Color borderLightColor = Color(0x0F000000); // 6% opacity black
-  static const Color borderMediumColor = Color(0x1F000000); // 12% opacity black
+  // UI Element Colors for Light Theme
+  static const Color dividerColor = Color(0x0F000000); // 6% opacity black
+  static const Color borderLightColor = Color(0x08000000); // 3% opacity black
+  static const Color borderMediumColor = Color(0x0F000000); // 6% opacity black
 
   // SWOT & Contextual Colors
-  static const Color strengthColor = Color(0xFF10B981); // Success Green
-  static const Color weaknessColor = Color(0xFFF59E0B); // Warning Gold/Yellow
-  static const Color opportunityColor = Color(0xFF3B82F6); // Info Solid Blue
-  static const Color threatColor = Color(0xFFEF4444); // Threat Solid Red
-  static const Color purpleColor = Color(0xFF8B5CF6); // Deep Analysis (Purple)
+  static const Color strengthColor = Color(0xFF10B981); 
+  static const Color weaknessColor = Color(0xFFF59E0B); 
+  static const Color opportunityColor = Color(0xFF3B82F6); 
+  static const Color threatColor = Color(0xFFEF4444); 
+  static const Color purpleColor = Color(0xFF8B5CF6); 
 
   // Gradient definitions
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [primaryColor, secondaryColor],
-    begin: Alignment.bottomLeft,
-    end: Alignment.topRight,
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient premiumGradient = LinearGradient(
+    colors: [Color(0xFF7C3AED), Color(0xFFC084FC)], // Royal purple / violet PRO gradient
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
   );
 
   static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [bgColor, Color(0xFFE5E7EB)],
+    colors: [bgColor, Color(0xFFF1F5F9)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
 
   static const LinearGradient glassGradient = LinearGradient(
     colors: [
-      Color(0xCCFFFFFF), // Opaque white base for light mode glassmorphism
-      Color(0x66FFFFFF),
+      Color(0xFAFFFFFF), // Frosted white base
+      Color(0xE6FFFFFF),
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -72,10 +78,10 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: cardColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0x1F000000)), // subtle border
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: Colors.black.withOpacity(0.045), width: 1),
         ),
-        elevation: 2,
+        elevation: 0,
       ),
       textTheme: const TextTheme(
         headlineMedium: TextStyle(
@@ -102,17 +108,17 @@ class AppTheme {
     Color? borderColor,
   }) {
     return BoxDecoration(
-      color: Colors.white.withOpacity(0.7), // Semi-opaque white for contrast on light background
-      borderRadius: borderRadius ?? BorderRadius.circular(20),
+      color: Colors.white.withOpacity(0.85),
+      borderRadius: borderRadius ?? BorderRadius.circular(24),
       border: Border.all(
-        color: borderColor ?? Colors.black.withOpacity(0.06), // Subtle dark border
-        width: 1.5,
+        color: borderColor ?? Colors.black.withOpacity(0.045),
+        width: 1.0,
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.04),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
+          color: Colors.black.withOpacity(0.02),
+          blurRadius: 20,
+          offset: const Offset(0, 8),
         ),
       ],
     );

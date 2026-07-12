@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/repositories/idea_repository.dart';
 import '../../theme/app_theme.dart';
+import '../../../data/constants/app_constants.dart';
 
 class SettingsScreen extends StatefulWidget {
   final IdeaRepository repository;
@@ -36,7 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Icon(Icons.check_circle, color: Colors.white),
               SizedBox(width: 8),
-              Text('Settings saved successfully'),
+              Text(AppConstants.saveApiKeySuccess),
             ],
           ),
           backgroundColor: AppTheme.accentColor,
@@ -75,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: const Icon(Icons.arrow_back_ios, color: AppTheme.primaryTextColor),
                       ),
                       const Text(
-                        'Settings',
+                        AppConstants.settingsTitle,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -104,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Gemini API Key',
+                          AppConstants.apiKeyLabel,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -125,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           obscureText: true,
                           style: const TextStyle(color: AppTheme.primaryTextColor),
                           decoration: InputDecoration(
-                            hintText: 'Enter your Gemini API Key...',
+                            hintText: AppConstants.apiKeyPlaceholder,
                             hintStyle: const TextStyle(color: Colors.grey),
                             filled: true,
                             fillColor: Colors.black.withOpacity(0.03),

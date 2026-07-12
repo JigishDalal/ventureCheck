@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../data/repositories/idea_repository.dart';
+import '../../../data/constants/app_constants.dart';
 import '../../bloc/history_bloc.dart';
 import '../../theme/app_theme.dart';
 import '../idea_entry/idea_entry_screen.dart';
@@ -138,7 +139,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
 
                 // Mock Mode Warning Indicator
-                if (isMock || !hasKey)
+                if (!hasKey)
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24.0,
@@ -166,9 +167,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              !hasKey
-                                  ? 'API Key is missing. Running in Mock Mode.'
-                                  : 'Running in demonstration Mock Mode.',
+                              AppConstants.emptyApiKeyWarning,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.amber,
@@ -257,7 +256,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 24),
                                   const Text(
-                                    'No Startup Validations',
+                                    AppConstants.emptyHistoryTitle,
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -266,7 +265,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 10),
                                   const Text(
-                                    'Enter your business concept or record a voice idea to generate a comprehensive AI report.',
+                                    AppConstants.emptyHistorySubtitle,
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: AppTheme.secondaryTextColor,
@@ -316,7 +315,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      '"${report.category}" report deleted',
+                                      '"${report.category}" ${AppConstants.deleteReportMessage}',
                                     ),
                                     action: SnackBarAction(
                                       label: 'Undo',
@@ -342,13 +341,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                   );
                                 },
-                                child: Card(
+                                child: Container(
                                   margin: const EdgeInsets.symmetric(
                                     vertical: 8.0,
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
+                                  decoration: AppTheme.glassBox(),
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
                                       children: [
                                         // Colored Score Tag
                                         Container(
@@ -566,7 +565,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ],
                                     ),
                                   ),
-                                ),
                               ),
                             );
                           },

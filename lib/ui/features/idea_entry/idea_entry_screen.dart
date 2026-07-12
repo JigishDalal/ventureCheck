@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/repositories/idea_repository.dart';
+import '../../../data/constants/app_constants.dart';
 import '../../../data/services/speech_service.dart';
 import '../../theme/app_theme.dart';
 import '../analysis/analysis_loading_screen.dart';
@@ -134,7 +135,7 @@ class _IdeaEntryScreenState extends State<IdeaEntryScreen> with SingleTickerProv
                         icon: const Icon(Icons.arrow_back_ios, color: AppTheme.primaryTextColor),
                       ),
                       const Text(
-                        'Submit Startup Idea',
+                        AppConstants.ideaEntryTitle,
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -168,7 +169,7 @@ class _IdeaEntryScreenState extends State<IdeaEntryScreen> with SingleTickerProv
                           maxLength: 500,
                           style: const TextStyle(color: AppTheme.primaryTextColor, fontSize: 16),
                           decoration: const InputDecoration(
-                            hintText: 'Type your business concept here...\n\nExample: "I want to build a platform that automates rental agreement creation using AI, serving property managers."',
+                            hintText: AppConstants.ideaEntryPlaceholder,
                             hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                             border: InputBorder.none,
                             counterStyle: TextStyle(color: AppTheme.secondaryTextColor),
@@ -307,7 +308,7 @@ class _IdeaEntryScreenState extends State<IdeaEntryScreen> with SingleTickerProv
                         child: Container(
                           alignment: Alignment.center,
                           child: Text(
-                            'Analyze Idea with Gemini',
+                            AppConstants.validateButtonText,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
